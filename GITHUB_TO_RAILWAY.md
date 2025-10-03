@@ -5,13 +5,13 @@ This guide will help you deploy your ClaimFlow application from the GitHub repos
 ## 🚀 Quick Deploy Options
 
 ### Option 1: One-Click Deploy (Recommended)
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template/claimflow?referralCode=workscalable)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template/claimflow?referralCode=halohealthafrica)
 
 ### Option 2: Deploy from GitHub Repository
 1. Go to [Railway Dashboard](https://railway.app/dashboard)
 2. Click "New Project"
 3. Select "Deploy from GitHub repo"
-4. Choose `workscalable/claimflow`
+4. Choose `HaloHealthAfrica/claimflow`
 5. Railway will automatically detect and deploy your Next.js app
 
 ### Option 3: CLI Deployment
@@ -43,7 +43,7 @@ railway login
 
 ### 4. Clone and Setup (if not already done)
 ```bash
-git clone https://github.com/workscalable/claimflow.git
+git clone https://github.com/HaloHealthAfrica/claimflow.git
 cd claimflow
 ```
 
@@ -239,7 +239,7 @@ railway run npx prisma db seed
 ### Getting Help
 - **Railway Docs**: https://docs.railway.app
 - **Railway Discord**: https://discord.gg/railway
-- **GitHub Issues**: https://github.com/workscalable/claimflow/issues
+- **GitHub Issues**: https://github.com/HaloHealthAfrica/claimflow/issues
 
 ## 📊 Monitoring & Maintenance
 
@@ -336,4 +336,4 @@ Your ClaimFlow application should now be running on Railway!
 - **Health Check**: `https://your-app.railway.app/api/health`
 - **API Docs**: `https://your-app.railway.app/api/docs` (if configured)
 
-For ongoing support, check the [Railway documentation](https://docs.railway.app) or create an issue in the [GitHub repository](https://github.com/workscalable/claimflow/issues).
+For ongoing support, check the [Railway documentation](https://docs.railway.app) or create an issue in the [GitHub repository](https://github.com/HaloHealthAfrica/claimflow/issues).

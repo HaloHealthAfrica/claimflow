@@ -19,8 +19,8 @@ fi
 
 # Add remote origin
 echo "🔗 Adding remote origin..."
-git remote add origin https://github.com/workscalable/claimflow.git 2>/dev/null || \
-git remote set-url origin https://github.com/workscalable/claimflow.git
+git remote add origin https://github.com/HaloHealthAfrica/claimflow.git 2>/dev/null || \
+git remote set-url origin https://github.com/HaloHealthAfrica/claimflow.git
 
 # Add all files
 echo "📦 Adding files to Git..."
@@ -45,9 +45,9 @@ fi
 
 echo ""
 echo "📋 Next steps:"
-echo "1. Verify your code is on GitHub: https://github.com/workscalable/claimflow"
+echo "1. Verify your code is on GitHub: https://github.com/HaloHealthAfrica/claimflow"
 echo "2. Deploy to Railway using: ./scripts/deploy.sh"
 echo "3. Set up environment variables in Railway dashboard"
 echo "4. Configure database and run migrations"
 echo ""
-echo "🔗 Repository URL: https://github.com/workscalable/claimflow"
+echo "🔗 Repository URL: https://github.com/HaloHealthAfrica/claimflow"

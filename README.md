@@ -1,6 +1,6 @@
 # ClaimFlow - HIPAA-Compliant Insurance Claims Management System
 
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/claimflow)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template/claimflow?referralCode=halohealthafrica)
 
 ClaimFlow is a comprehensive, HIPAA-compliant insurance claims management system built with Next.js 14, featuring AI-powered OCR, medical coding assistance, and secure claim tracking.
 
@@ -61,7 +61,7 @@ ClaimFlow is a comprehensive, HIPAA-compliant insurance claims management system
 
 1. **Clone the repository**
    ```bash
-   git clone https://github.com/workscalable/claimflow.git
+   git clone https://github.com/HaloHealthAfrica/claimflow.git
    cd claimflow
    ```
 
@@ -96,7 +96,7 @@ ClaimFlow is a comprehensive, HIPAA-compliant insurance claims management system
 ## 🌐 Deploy to Railway
 
 ### One-Click Deploy
-[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/template/claimflow)
+[![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template/claimflow?referralCode=halohealthafrica)
 
 ### Manual Deployment
 
@@ -255,8 +255,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🆘 Support
 
 - **Documentation**: [DEPLOYMENT.md](./DEPLOYMENT.md) | [RAILWAY_SETUP.md](./RAILWAY_SETUP.md)
-- **Issues**: [GitHub Issues](https://github.com/workscalable/claimflow/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/workscalable/claimflow/discussions)
+- **Issues**: [GitHub Issues](https://github.com/HaloHealthAfrica/claimflow/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/HaloHealthAfrica/claimflow/discussions)
 
 ## 🙏 Acknowledgments
 

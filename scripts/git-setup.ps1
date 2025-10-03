@@ -21,10 +21,10 @@ if (-not (Test-Path ".git")) {
 
 # Add remote origin
 Write-Host "🔗 Adding remote origin..." -ForegroundColor Blue
-git remote add origin https://github.com/workscalable/claimflow.git
+git remote add origin https://github.com/HaloHealthAfrica/claimflow.git
 
 # Or update existing remote
-git remote set-url origin https://github.com/workscalable/claimflow.git
+git remote set-url origin https://github.com/HaloHealthAfrica/claimflow.git
 
 # Add all files
 Write-Host "📦 Adding files to Git..." -ForegroundColor Blue
@@ -50,9 +50,9 @@ try {
 
 Write-Host ""
 Write-Host "📋 Next steps:" -ForegroundColor Yellow
-Write-Host "1. Verify your code is on GitHub: https://github.com/workscalable/claimflow" -ForegroundColor White
+Write-Host "1. Verify your code is on GitHub: https://github.com/HaloHealthAfrica/claimflow" -ForegroundColor White
 Write-Host "2. Deploy to Railway using: .\scripts\deploy.ps1" -ForegroundColor White
 Write-Host "3. Set up environment variables in Railway dashboard" -ForegroundColor White
 Write-Host "4. Configure database and run migrations" -ForegroundColor White
 Write-Host ""
-Write-Host "🔗 Repository URL: https://github.com/workscalable/claimflow" -ForegroundColor Cyan
+Write-Host "🔗 Repository URL: https://github.com/HaloHealthAfrica/claimflow" -ForegroundColor Cyan
