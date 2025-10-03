@@ -55,7 +55,7 @@
     "eslint-config-next": "14.0.0",
     "jsonwebtoken": "^9.0.0",
     "lucide-react": "^0.294.0",
-    "next": "14.0.0",
+    "next": "^14.2.33",
     "next-auth": "^4.24.0",
     "openai": "^4.20.0",
     "postcss": "^8.0.0",
@@ -87,7 +87,9 @@
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "jsdom",
-    "setupFilesAfterEnv": ["<rootDir>/tests/setup.ts"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/tests/setup.ts"
+    ],
     "moduleNameMapping": {
       "^@/(.*)$": "<rootDir>/src/$1",
       "^@/tests/(.*)$": "<rootDir>/tests/$1"
@@ -113,12 +115,23 @@
         "statements": 80
       }
     },
-    "coverageReporters": ["text", "lcov", "html", "json-summary"],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html",
+      "json-summary"
+    ],
     "testTimeout": 10000,
     "transformIgnorePatterns": [
       "node_modules/(?!(.*\\.mjs$|@testing-library))"
     ],
-    "moduleFileExtensions": ["ts", "tsx", "js", "jsx", "json"],
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json"
+    ],
     "globalSetup": "<rootDir>/tests/global-setup.ts",
     "globalTeardown": "<rootDir>/tests/global-teardown.ts",
     "testEnvironmentOptions": {
