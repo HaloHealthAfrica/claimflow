@@ -1,0 +1,510 @@
+// Prisma schema for ClaimFlow system
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User model for authentication and profile management
+model User {
+  id                String   @id @default(cuid())
+  email             String   @unique
+  emailVerified     DateTime?
+  firstName         String?
+  lastName          String?
+  phone             String?
+  dateOfBirth       DateTime?
+  address           String?
+  city              String?
+  state             String?
+  zipCode           String?
+  
+  // Authentication fields
+  password          String?
+  isActive          Boolean  @default(true)
+  lastLoginAt       DateTime?
+  loginAttempts     Int      @default(0)
+  lockedUntil       DateTime?
+  
+  // Verification and security
+  emailVerificationToken String?
+  passwordResetToken     String?
+  passwordResetExpires   DateTime?
+  twoFactorEnabled       Boolean @default(false)
+  twoFactorSecret        String?
+  
+  // Timestamps
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  
+  // Relations
+  insuranceProfiles InsuranceProfile[]
+  claims            Claim[]
+  documents         Document[]
+  notifications     Notification[]
+  auditLogs         AuditLog[]
+  sessions          Session[]
+  
+  @@map("users")
+}
+
+// Session management for authentication
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("sessions")
+}
+
+// Insurance profile model with encrypted PHI data
+model InsuranceProfile {
+  id                    String   @id @default(cuid())
+  userId                String
+  
+  // Insurance company information
+  insurerName           String
+  insurerId             String?
+  payerId               String?
+  planName              String?
+  planType              String?
+  groupNumber           String?
+  
+  // Member information (encrypted)
+  memberNumber          String   // Encrypted
+  memberName            String   // Encrypted
+  memberDateOfBirth     DateTime? // Encrypted
+  
+  // Policy information
+  policyNumber          String?  // Encrypted
+  effectiveDate         DateTime?
+  expirationDate        DateTime?
+  copayAmount           Decimal? @db.Decimal(10, 2)
+  deductibleAmount      Decimal? @db.Decimal(10, 2)
+  outOfPocketMax        Decimal? @db.Decimal(10, 2)
+  
+  // Card information
+  frontImageUrl         String?
+  backImageUrl          String?
+  
+  // Status and metadata
+  isActive              Boolean  @default(true)
+  isPrimary             Boolean  @default(false)
+  verificationStatus    InsuranceVerificationStatus @default(PENDING)
+  
+  // OCR and processing
+  ocrConfidence         Float?
+  ocrProcessedAt        DateTime?
+  manuallyVerified      Boolean  @default(false)
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relations
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  claims                Claim[]
+  
+  @@map("insurance_profiles")
+}
+
+// Claim model for medical claims management
+model Claim {
+  id                    String   @id @default(cuid())
+  userId                String
+  insuranceProfileId    String?
+  
+  // Claim identification
+  claimNumber           String?  @unique
+  externalClaimId       String?
+  
+  // Service information
+  dateOfService         DateTime
+  providerName          String
+  providerNPI           String?
+  providerAddress       String?
+  facilityName          String?
+  
+  // Financial information
+  amountCents           Int      // Amount in cents to avoid decimal issues
+  paidAmountCents       Int?     // Amount paid by insurance
+  patientResponsibilityCents Int? // Patient's responsibility
+  
+  // Medical coding
+  cptCodes              String[] // Array of CPT codes
+  icdCodes              String[] // Array of ICD-10 codes
+  modifiers             String[] // CPT modifiers
+  
+  // Claim details
+  description           String?
+  notes                 String?
+  
+  // Status and processing
+  status                ClaimStatus @default(DRAFT)
+  submissionMethod      SubmissionMethod?
+  submittedAt           DateTime?
+  processedAt           DateTime?
+  
+  // Submission tracking
+  submissionId          String?
+  confirmationNumber    String?
+  clearinghouseId       String?
+  
+  // AI and validation
+  aiValidationScore     Float?
+  aiSuggestions         Json?
+  validationErrors      String[]
+  validationWarnings    String[]
+  
+  // Appeal information
+  appealCount           Int      @default(0)
+  lastAppealDate        DateTime?
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relations
+  user                  User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+  insuranceProfile      InsuranceProfile? @relation(fields: [insuranceProfileId], references: [id])
+  documents             Document[]
+  timeline              ClaimTimeline[]
+  appeals               Appeal[]
+  
+  @@map("claims")
+}
+
+// Document model for file management
+model Document {
+  id                    String   @id @default(cuid())
+  userId                String
+  claimId               String?
+  
+  // File information
+  fileName              String
+  originalFileName      String
+  fileSize              Int
+  mimeType              String
+  
+  // Storage information
+  s3Key                 String   @unique
+  s3Bucket              String
+  url                   String?
+  
+  // Document classification
+  documentType          DocumentType
+  category              String?
+  
+  // OCR and processing
+  ocrText               String?
+  ocrConfidence         Float?
+  ocrProcessedAt        DateTime?
+  
+  // Extracted data (JSON format for flexibility)
+  extractedData         Json?
+  
+  // Security and access
+  isEncrypted           Boolean  @default(false)
+  encryptionKey         String?
+  accessLevel           AccessLevel @default(PRIVATE)
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relations
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  claim                 Claim?   @relation(fields: [claimId], references: [id])
+  
+  @@map("documents")
+}
+
+// Claim timeline for tracking claim progress
+model ClaimTimeline {
+  id                    String   @id @default(cuid())
+  claimId               String
+  
+  // Timeline entry information
+  type                  TimelineEventType
+  title                 String
+  description           String?
+  
+  // Status information
+  previousStatus        ClaimStatus?
+  newStatus             ClaimStatus?
+  
+  // Additional data
+  metadata              Json?
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  
+  // Relations
+  claim                 Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  
+  @@map("claim_timeline")
+}
+
+// Appeal model for claim appeals
+model Appeal {
+  id                    String   @id @default(cuid())
+  claimId               String
+  
+  // Appeal information
+  appealNumber          String?  @unique
+  denialReason          String
+  appealReason          String
+  appealLetter          String?
+  
+  // Status and processing
+  status                AppealStatus @default(DRAFT)
+  submittedAt           DateTime?
+  responseReceivedAt    DateTime?
+  
+  // AI generation
+  aiGenerated           Boolean  @default(false)
+  aiConfidence          Float?
+  
+  // Outcome
+  outcome               AppealOutcome?
+  outcomeNotes          String?
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relations
+  claim                 Claim    @relation(fields: [claimId], references: [id], onDelete: Cascade)
+  documents             Document[]
+  
+  @@map("appeals")
+}
+
+// Notification model for user notifications
+model Notification {
+  id                    String   @id @default(cuid())
+  userId                String
+  
+  // Notification content
+  title                 String
+  message               String
+  type                  NotificationType
+  
+  // Delivery information
+  channels              NotificationChannel[]
+  
+  // Status
+  isRead                Boolean  @default(false)
+  readAt                DateTime?
+  
+  // Scheduling
+  scheduledFor          DateTime?
+  sentAt                DateTime?
+  
+  // Related entities
+  relatedEntityType     String?
+  relatedEntityId       String?
+  
+  // Metadata
+  metadata              Json?
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  // Relations
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@map("notifications")
+}
+
+// Audit log model for security and compliance
+model AuditLog {
+  id                    String   @id @default(cuid())
+  userId                String?
+  
+  // Action information
+  action                String
+  entityType            String
+  entityId              String?
+  
+  // Request information
+  ipAddress             String?
+  userAgent             String?
+  requestId             String?
+  
+  // Changes (for data modification actions)
+  oldValues             Json?
+  newValues             Json?
+  
+  // Status and result
+  success               Boolean
+  errorMessage          String?
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  
+  // Relations
+  user                  User?    @relation(fields: [userId], references: [id])
+  
+  @@map("audit_logs")
+}
+
+// Medical code reference tables
+model CPTCode {
+  id                    String   @id @default(cuid())
+  code                  String   @unique
+  description           String
+  category              String?
+  
+  // Pricing information
+  averagePrice          Decimal? @db.Decimal(10, 2)
+  medicarePrice         Decimal? @db.Decimal(10, 2)
+  
+  // Status
+  isActive              Boolean  @default(true)
+  effectiveDate         DateTime?
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@map("cpt_codes")
+}
+
+model ICDCode {
+  id                    String   @id @default(cuid())
+  code                  String   @unique
+  description           String
+  category              String?
+  
+  // ICD-10 specific
+  icdVersion            String   @default("ICD-10")
+  
+  // Status
+  isActive              Boolean  @default(true)
+  effectiveDate         DateTime?
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@map("icd_codes")
+}
+
+// System configuration model
+model SystemConfig {
+  id                    String   @id @default(cuid())
+  key                   String   @unique
+  value                 String
+  description           String?
+  
+  // Metadata
+  isEncrypted           Boolean  @default(false)
+  category              String?
+  
+  // Timestamps
+  createdAt             DateTime @default(now())
+  updatedAt             DateTime @updatedAt
+  
+  @@map("system_config")
+}
+
+// Enums
+enum ClaimStatus {
+  DRAFT
+  SUBMITTED
+  PROCESSING
+  APPROVED
+  DENIED
+  APPEALED
+  PAID
+  REJECTED
+  CANCELLED
+}
+
+enum SubmissionMethod {
+  ELECTRONIC
+  PAPER
+  FAX
+  PORTAL
+}
+
+enum DocumentType {
+  RECEIPT
+  INSURANCE_CARD
+  MEDICAL_RECORD
+  PRESCRIPTION
+  REFERRAL
+  AUTHORIZATION
+  APPEAL_LETTER
+  CORRESPONDENCE
+  OTHER
+}
+
+enum AccessLevel {
+  PRIVATE
+  SHARED
+  PUBLIC
+}
+
+enum InsuranceVerificationStatus {
+  PENDING
+  VERIFIED
+  FAILED
+  EXPIRED
+}
+
+enum TimelineEventType {
+  CREATED
+  SUBMITTED
+  PROCESSING
+  APPROVED
+  DENIED
+  APPEALED
+  PAID
+  DOCUMENT_ADDED
+  STATUS_CHANGED
+  NOTE_ADDED
+  ERROR_OCCURRED
+}
+
+enum AppealStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  DENIED
+  WITHDRAWN
+}
+
+enum AppealOutcome {
+  APPROVED
+  PARTIALLY_APPROVED
+  DENIED
+  PENDING
+}
+
+enum NotificationType {
+  CLAIM_STATUS_UPDATE
+  PAYMENT_RECEIVED
+  DOCUMENT_REQUIRED
+  APPEAL_UPDATE
+  SYSTEM_ALERT
+  REMINDER
+  WELCOME
+  SECURITY_ALERT
+}
+
+enum NotificationChannel {
+  EMAIL
+  SMS
+  PUSH
+  IN_APP
+}
