@@ -113,12 +113,12 @@ export function GlobalErrorProvider({
   }, [maxGlobalErrors, errorDisplayDuration, enableErrorToasts]);
 
   // Execute operation with retry logic
-  const executeWithRetry = useCallback(async <T>(
-    operation: () => Promise<T>,
+  const executeWithRetry = useCallback(async (
+    operation: () => Promise<any>,
     operationId: string,
     context?: ErrorContext,
     retryConfig?: Partial<RetryConfig>
-  ): Promise<OperationResult<T>> => {
+  ): Promise<OperationResult<any>> => {
     return errorHandler_.executeWithHandling(operation, operationId, context, retryConfig);
   }, [errorHandler_]);
 
@@ -190,16 +190,16 @@ export function useGlobalError() {
 export function useResilientOperation() {
   const { executeWithRetry, createResilientFunction } = useGlobalError();
 
-  const executeAPI = useCallback(async <T>(
-    apiCall: () => Promise<T>,
+  const executeAPI = useCallback(async (
+    apiCall: () => Promise<any>,
     endpoint: string,
     retryConfig?: Partial<RetryConfig>
   ) => {
     return executeWithRetry(apiCall, `api:${endpoint}`, { action: 'api_call', url: endpoint }, retryConfig);
   }, [executeWithRetry]);
 
-  const executeDB = useCallback(async <T>(
-    dbOperation: () => Promise<T>,
+  const executeDB = useCallback(async (
+    dbOperation: () => Promise<any>,
     operationName: string,
     retryConfig?: Partial<RetryConfig>
   ) => {

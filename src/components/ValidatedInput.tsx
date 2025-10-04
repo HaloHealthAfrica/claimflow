@@ -21,7 +21,7 @@ interface ValidatedInputProps {
   max?: string;
 }
 
-export default function ValidatedInput({
+export function ValidatedInput({
   label,
   name,
   type = 'text',
@@ -211,3 +211,5 @@ export default function ValidatedInput({
     </div>
   );
 }
+export
+ default ValidatedInput;

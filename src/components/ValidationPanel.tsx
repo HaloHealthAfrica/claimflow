@@ -22,7 +22,7 @@ interface ValidationPanelProps {
   className?: string;
 }
 
-export default function ValidationPanel({ 
+export function ValidationPanel({ 
   claimData, 
   onValidationChange, 
   autoValidate = true,
@@ -30,7 +30,7 @@ export default function ValidationPanel({
 }: ValidationPanelProps) {
   const { loading, error, validateClaim, clearError } = useAI();
   
-  const [validationResult, setValidationResult] = useState<ValidationResult & { overallScore: number; isValid: boolean; needsReview: boolean } | null>(null);
+  const [validationResult, setValidationResult] = useState<ValidationResult & { approvalLikelihood: number; overallScore: number; isValid: boolean; needsReview: boolean } | null>(null);
   const [lastValidatedData, setLastValidatedData] = useState<string>('');
   const [validationStatus, setValidationStatus] = useState<'idle' | 'validating' | 'valid' | 'invalid' | 'error'>('idle');
 
@@ -59,16 +59,22 @@ export default function ValidationPanel({
       const result = await validateClaim({
         providerName: claimData.providerName,
         dateOfService: claimData.dateOfService,
-        amount: claimData.amount,
+        amountCents: Math.round(parseFloat(claimData.amount) * 100),
         cptCodes: claimData.cptCodes,
         icdCodes: claimData.icdCodes,
         description: claimData.description,
       });
 
-      setValidationResult(result);
+      const extendedResult = {
+        ...result,
+        overallScore: result.approvalLikelihood,
+        isValid: result.errors.length === 0,
+        needsReview: result.warnings.length > 0 || result.approvalLikelihood < 0.8,
+      };
+      setValidationResult(extendedResult);
       setLastValidatedData(JSON.stringify(claimData));
-      setValidationStatus(result.isValid ? 'valid' : 'invalid');
-      onValidationChange?.(result.isValid, result);
+      setValidationStatus(extendedResult.isValid ? 'valid' : 'invalid');
+      onValidationChange?.(extendedResult.isValid, extendedResult);
     } catch (err) {
       console.error('Validation failed:', err);
       setValidationStatus('error');
@@ -375,3 +381,5 @@ export default function ValidationPanel({
     </div>
   );
 }
+
+export default ValidationPanel;
