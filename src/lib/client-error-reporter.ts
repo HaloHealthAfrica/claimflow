@@ -50,14 +50,14 @@ class ClientErrorReporter {
       // Add default metadata
       const enrichedError: ClientErrorReport = {
         ...error,
-        url: error.url || window.location.href,
-        userAgent: error.userAgent || navigator.userAgent,
+        url: error.url || (typeof window !== 'undefined' ? window.location.href : 'server'),
+        userAgent: error.userAgent || (typeof navigator !== 'undefined' ? navigator.userAgent : 'server'),
         metadata: {
           timestamp: new Date().toISOString(),
-          viewport: {
+          viewport: typeof window !== 'undefined' ? {
             width: window.innerWidth,
             height: window.innerHeight,
-          },
+          } : { width: 0, height: 0 },
           screen: {
             width: screen.width,
             height: screen.height,
@@ -232,11 +232,13 @@ class ClientErrorReporter {
     
     this.reportQueue.push(error);
     
-    // Store in localStorage for persistence
-    try {
-      localStorage.setItem('errorQueue', JSON.stringify(this.reportQueue));
-    } catch (storageError) {
-      console.warn('Failed to persist error queue:', storageError);
+    // Store in localStorage for persistence (client-side only)
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('errorQueue', JSON.stringify(this.reportQueue));
+      } catch (storageError) {
+        console.warn('Failed to persist error queue:', storageError);
+      }
     }
   }
 
@@ -256,15 +258,20 @@ class ClientErrorReporter {
       }
     }
 
-    // Update localStorage
-    try {
-      localStorage.setItem('errorQueue', JSON.stringify(this.reportQueue));
-    } catch (storageError) {
-      console.warn('Failed to update error queue:', storageError);
+    // Update localStorage (client-side only)
+    if (typeof localStorage !== 'undefined') {
+      try {
+        localStorage.setItem('errorQueue', JSON.stringify(this.reportQueue));
+      } catch (storageError) {
+        console.warn('Failed to update error queue:', storageError);
+      }
     }
   }
 
   private setupGlobalErrorHandlers(): void {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     // Handle uncaught JavaScript errors
     window.addEventListener('error', (event) => {
       this.reportJSError(
@@ -312,6 +319,9 @@ class ClientErrorReporter {
   }
 
   private setupOnlineStatusMonitoring(): void {
+    // Only run on client side
+    if (typeof window === 'undefined') return;
+    
     window.addEventListener('online', () => {
       this.isOnline = true;
       this.flushQueue();
@@ -330,19 +340,21 @@ class ClientErrorReporter {
       this.flushQueue();
     }, 30000);
 
-    // Load persisted queue on startup
-    try {
-      const persistedQueue = localStorage.getItem('errorQueue');
-      if (persistedQueue) {
-        this.reportQueue = JSON.parse(persistedQueue);
+    // Load persisted queue on startup (client-side only)
+    if (typeof localStorage !== 'undefined') {
+      try {
+        const persistedQueue = localStorage.getItem('errorQueue');
+        if (persistedQueue) {
+          this.reportQueue = JSON.parse(persistedQueue);
+        }
+      } catch (error) {
+        console.warn('Failed to load persisted error queue:', error);
       }
-    } catch (error) {
-      console.warn('Failed to load persisted error queue:', error);
     }
   }
 
   private getPerformanceMetrics(): Record<string, number> {
-    if (!window.performance) return {};
+    if (typeof window === 'undefined' || !window.performance) return {};
 
     const navigation = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     

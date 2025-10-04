@@ -1,6 +1,6 @@
 'use client';
 
-// AI-powered appeal letter generator
+// AI-powered appeal generator component with editing interface
 import React, { useState } from 'react';
 import { useAI } from '@/hooks/useAI';
 
@@ -18,7 +18,7 @@ interface AppealGeneratorProps {
 
 export default function AppealGenerator({ claimId, initialData }: AppealGeneratorProps) {
   const { loading, error, generateAppeal, clearError } = useAI();
-  
+
   const [denialReason, setDenialReason] = useState('');
   const [customContext, setCustomContext] = useState({
     providerName: initialData?.providerName || '',
@@ -49,20 +49,27 @@ export default function AppealGenerator({ claimId, initialData }: AppealGenerato
   const handleGenerateAppeal = async () => {
     try {
       clearError();
-      
+
       if (!denialReason.trim()) {
         return;
       }
 
       const contextData = claimId ? undefined : {
-        ...customContext,
-        cptCodes: customContext.cptCodes.split(',').map(code => code.trim()).filter(Boolean),
-        icdCodes: customContext.icdCodes.split(',').map(code => code.trim()).filter(Boolean),
+        additionalContext: JSON.stringify({
+          providerName: customContext.providerName,
+          dateOfService: customContext.dateOfService,
+          amount: customContext.amount,
+          cptCodes: customContext.cptCodes.split(',').map(code => code.trim()).filter(Boolean),
+          icdCodes: customContext.icdCodes.split(',').map(code => code.trim()).filter(Boolean),
+          description: customContext.description,
+        }),
+        appealType: 'first_level' as const,
+        urgency: 'routine' as const,
       };
 
-      const result = await generateAppeal(claimId, denialReason, contextData);
+      const result = await generateAppeal(claimId || 'temp-claim', denialReason, contextData);
       setAppealLetter(result.appealLetter);
-      setWordCount(result.wordCount);
+      setWordCount(result.appealLetter.split(' ').length);
       setShowPreview(true);
     } catch (err) {
       console.error('Failed to generate appeal:', err);
@@ -159,7 +166,7 @@ export default function AppealGenerator({ claimId, initialData }: AppealGenerato
           {!claimId && (
             <div className="space-y-4">
               <h3 className="text-lg font-semibold text-gray-900">Claim Information</h3>
-              
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
