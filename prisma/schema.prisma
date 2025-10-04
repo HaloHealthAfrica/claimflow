@@ -185,6 +185,7 @@ model Document {
   id                    String   @id @default(cuid())
   userId                String
   claimId               String?
+  appealId              String?
   
   // File information
   fileName              String
@@ -221,6 +222,7 @@ model Document {
   // Relations
   user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   claim                 Claim?   @relation(fields: [claimId], references: [id])
+  appeal                Appeal?  @relation(fields: [appealId], references: [id])
   
   @@map("documents")
 }

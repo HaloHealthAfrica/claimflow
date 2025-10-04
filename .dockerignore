@@ -1,65 +1,28 @@
-# Dependencies
 node_modules
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-
-# Testing
-coverage
-.nyc_output
-tests
-
-# Next.js
-.next/
-out/
-
-# Production
-build
-
-# Misc
-.DS_Store
-*.pem
-
-# Debug
-*.log
-
-# Local env files
-.env*.local
-.env
-
-# Vercel
-.vercel
-
-# TypeScript
-*.tsbuildinfo
-next-env.d.ts
-
-# IDE
-.vscode
-.idea
-
-# Git
+.next
 .git
 .gitignore
 README.md
-
-# Docker
-Dockerfile*
-docker-compose*
-
-# CI/CD
-.github
-
-# Docs
-docs/
-*.md
-
-# Scripts (except those needed for build)
-scripts/
-!scripts/init-db.ts
-
-# Railway
-railway.json
-
-# Kiro
-.kiro/
+Dockerfile
+.dockerignore
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.env*.local
+.vercel
+.DS_Store
+*.tsbuildinfo
+coverage
+.nyc_output
+tests
+*.test.js
+*.test.ts
+*.test.tsx
+.kiro
+docs
+scripts/deploy.ps1
+scripts/railway-deploy.ps1
+DEPLOY_TO_RAILWAY.md
+GITHUB_TO_RAILWAY.md
+RAILWAY_SETUP.md
+DEPLOYMENT.md
