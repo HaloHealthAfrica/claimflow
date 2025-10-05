@@ -3,7 +3,7 @@ FROM node:20-alpine AS base
 
 # Install dependencies only when needed
 FROM base AS deps
-RUN apk add --no-cache libc6-compat
+RUN apk add --no-cache libc6-compat curl
 WORKDIR /app
 
 # Install dependencies based on the preferred package manager
@@ -19,7 +19,7 @@ COPY . .
 # Generate Prisma client
 RUN npx prisma generate
 
-# Build the application
+# Build the application with error handling
 RUN npm run build
 
 # Production image, copy all the files and run next
@@ -29,6 +29,7 @@ WORKDIR /app
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
+RUN apk add --no-cache curl
 RUN addgroup --system --gid 1001 nodejs
 RUN adduser --system --uid 1001 nextjs
 
@@ -55,8 +56,8 @@ ENV PORT=3000
 ENV HOSTNAME="0.0.0.0"
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
   CMD curl -f http://localhost:3000/api/health || exit 1
 
-# Start the application
-CMD ["node", "server.js"]
+# Start the application with migrations
+CMD ["sh", "-c", "npx prisma migrate deploy && npx prisma generate && node server.js"]

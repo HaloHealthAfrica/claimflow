@@ -34,6 +34,7 @@
     "deploy:logs": "railway logs",
     "deploy:shell": "railway shell",
     "deploy:status": "railway status",
+    "railway:start": "npx prisma migrate deploy && npx prisma generate && node server.js",
     "postbuild": "prisma generate",
     "type-check": "tsc --noEmit",
     "format": "prettier --write .",
